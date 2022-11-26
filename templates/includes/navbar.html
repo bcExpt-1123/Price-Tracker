@@ -1,0 +1,22 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'navstyle.css' %}" />
+<nav class="nav-container">
+  <ul>
+    <li>
+      <a href="/">Ana Sayfa</a>
+    </li>
+    {% if request.user.is_authenticated %}
+    <li>
+      <a href="/user/logout">Çıkış Yap</a>
+    </li>
+    {% else%}
+    <li>
+      <a href="/user/login">Giriş Yap</a>
+    </li>
+
+    <li>
+      <a href="/user/register">Kaydol</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>

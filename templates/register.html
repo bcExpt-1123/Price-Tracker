@@ -1,0 +1,16 @@
+{% extends 'layout.html' %} {% block body %}
+
+<div class="text-center text-2xl">Kaydol</div>
+
+<form method="post" class="">
+  {% csrf_token %} {{form.as_p}}
+  <div class="w-100 flex justify-end">
+    <button
+      type="submit"
+      class="mt-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    >
+      Kaydol
+    </button>
+  </div>
+</form>
+{% endblock body %}

@@ -1,0 +1,23 @@
+.nav-container {
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li,
+a {
+  display: inline;
+  text-decoration: none;
+  color: black;
+  text-align: center;
+  padding: 10px;
+}
