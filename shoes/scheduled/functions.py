@@ -79,9 +79,3 @@ def main():
         scrap()
     except Exception as e:
         send_email("your_adress",e)
-       
-
-
-    
-            
-        
