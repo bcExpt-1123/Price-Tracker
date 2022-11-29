@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
-from .models import LinkUrlToUser, Shoe
-from .scheduled.functions import get_shoe_props
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
+
+from .functions import get_shoe_props
+from .models import LinkUrlToUser, Shoe
+
 # Create your views here.
 
 
@@ -35,6 +37,9 @@ def watch(request):
         if not LinkUrlToUser.objects.filter(url=url,user_email=user_email).first():
             watch = LinkUrlToUser.objects.create(url=url,name=name ,user_email=user_email)
             watch.save()
+        else:
+            messages.info(request,"Bu ürünü zaten takip ediyorsunuz")
+
 
         
     return redirect("index")

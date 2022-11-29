@@ -1,9 +1,13 @@
+import re
+import smtplib
+from email.message import EmailMessage
+
 import requests
 from bs4 import BeautifulSoup
-from ..models import Shoe, LinkUrlToUser
-from email.message import EmailMessage
-import smtplib
-import re
+from django.conf import settings
+
+from .models import LinkUrlToUser, Shoe
+
 
 def get_shoes():
     return Shoe.objects.all()
@@ -58,12 +62,12 @@ def scrap():
                 shoe.save()
 
 def send_email(email,content):
-    s = smtplib.SMTP(host='your_host', port=587)
+    s = smtplib.SMTP(host=settings.HOST, port=587)
     s.starttls()
-    s.login("your_adress", "your_password")
+    s.login(settings.MAIL, settings.PASSWORD)
     msg = EmailMessage()
     msg["Subject"] = "Fiyat Değişikliği"
-    msg['from'] = "your_adress"
+    msg['from'] = settings.MAIL
     msg["To"] = email
     msg.set_content(content)
     s.send_message(msg)
@@ -71,11 +75,11 @@ def send_email(email,content):
     print("Sent")
 
 def notify():
-    send_email("your_adress","Working fine")
+    send_email(settings.NOTIFY,"Working fine")
 
 def main():
     try:
         clear()
         scrap()
     except Exception as e:
-        send_email("your_adress",e)
+        send_email(settings.NOTIFY,e)

@@ -1,13 +1,16 @@
-from django.shortcuts import render, redirect
-from . import forms
-from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.shortcuts import redirect, render
+
+from . import forms
 
 # Create your views here.
 
 def registerUser(request):
+    if request.user.is_authenticated:
+        return redirect('index')
     form = forms.RegisterForm(request.POST or None)
     if form.is_valid():
         username = form.cleaned_data.get("username")
@@ -27,6 +30,8 @@ def registerUser(request):
 
 
 def loginUser(request):
+    if request.user.is_authenticated:
+        return redirect('index')
     form = forms.LoginForm(request.POST or None)
 
     context = {
