@@ -1,6 +1,9 @@
-import "../styles/globals.css";
 import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
+import Head from "next/head";
+import { useState } from "react";
+import Layout from "../components/Layout";
+import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
   const [supabase] = useState(() => createBrowserSupabaseClient());
@@ -10,7 +13,12 @@ function MyApp({ Component, pageProps }) {
       supabaseClient={supabase}
       initialSession={pageProps.initialSession}
     >
-      <Component {...pageProps} />
+      <Layout>
+        <Head>
+          <title>Arkuçi - Ev arkadaşı Bul</title>
+        </Head>
+        <Component {...pageProps} />
+      </Layout>
     </SessionContextProvider>
   );
 }
