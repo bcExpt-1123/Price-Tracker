@@ -31,6 +31,7 @@ export default function Home() {
       return Object.assign(e.shoes, { id });
     });
     setTrackingShoes(obj);
+    setError(null);
   };
 
   const handleDelete = async (id) => {
@@ -52,8 +53,7 @@ export default function Home() {
     setIsAddBtnLoading(true);
     var price;
     var name;
-    const shoeUrl = url.replace(" ", "");
-    console.log(shoeUrl);
+    const shoeUrl = url.replace(/\s/g, "");
 
     await fetch("/api/getShoe", {
       method: "POST",
@@ -64,10 +64,18 @@ export default function Home() {
     })
       .then((resp) => resp.json())
       .then(async (data) => {
+        if (data.error) {
+          setError("Lütfen sadece aşşağıdaki markalara ait ürünleri giriniz");
+          setIsAddBtnLoading(false);
+          setUrl("");
+          return;
+        }
         price = data.price.replace("₺", "").replace(".", "").replace(",", ".");
         price = parseFloat(price);
         name = data.title;
       });
+
+    if (!price) return;
 
     const { error: shoeError } = await supabase
       .from("shoes")
@@ -84,7 +92,7 @@ export default function Home() {
     const { data: check } = await supabase
       .from("link_user_to_shoe")
       .select("id")
-      .match({ email: user.email, shoe: url });
+      .match({ email: user.email, shoe: shoeUrl });
     if (check.length) {
       setError("Bu ürünü zaten takip ediyorsunuz");
       setIsAddBtnLoading(false);
@@ -105,88 +113,92 @@ export default function Home() {
       <div className="container mx-auto pt-5">
         <h1 className="text-center text-lg font-bold">{user?.email}</h1>
         {error && (
-          <div className="border border-red-400 rounded-b bg-red-100 px-4 py-2 my-3 text-red-700">
+          <div className="p-4 m-4 bg-white rounded-lg ">
             <p>{error}</p>
           </div>
         )}
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="url">Url</label>
-          <input
-            type="text"
-            name="url"
-            className="bg-black-50 border border-black-300 text-black-900 text-sm rounded-lg focus:ring-black-500 focus:border-black-500 block w-full p-2.5"
-            required
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-          <div className="w-100 flex justify-end py-4 px-6">
-            <button
-              id="add"
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              <div role="status">
-                {isAddBtnLoading ? (
-                  <LoadingIcons.TailSpin
-                    stroke="white"
-                    strokeWidth={5}
-                    height="17px"
-                  />
-                ) : (
-                  "Ekle"
-                )}
-              </div>
-            </button>
-          </div>
-        </form>
-
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="border-b">
-            <tr className="bg-white border-b">
-              <th scope="col" className="py-3 px-6">
-                Id
-              </th>
-              <th scope="col" className="py-3 px-6">
-                Name
-              </th>
-              <th scope="col" className="py-3 px-6">
-                Url
-              </th>
-              <th scope="col" className="py-3 px-6">
-                Price
-              </th>
-              <th scope="col" className="py-3 px-6"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {trackingShoes.map((shoe) => (
-              <tr className="border-b" key={shoe.id}>
-                <td className="py-4 px-6">{shoe.id}</td>
-                <td className="py-4 px-6">{shoe.name}</td>
-                <td className="py-4 px-6">{shoe.url}</td>
-                <td className="py-4 px-6">{shoe.price}</td>
-                <td className="py-4 px-6 flex justify-end">
-                  <button
-                    onClick={() => {
-                      handleDelete(shoe.id);
-                    }}
-                    className="mt-5 bg-rose-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  >
-                    {deleteBtnsLoading[shoe.id] ? (
+        {user && (
+          <>
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="url">Url</label>
+              <input
+                type="url"
+                name="url"
+                className="bg-black-50 border border-black-300 text-black-900 text-sm rounded-lg focus:ring-black-500 focus:border-black-500 block w-full p-2.5"
+                required
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
+              <div className="w-100 flex justify-end py-4 px-6">
+                <button
+                  id="add"
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  <div role="status">
+                    {isAddBtnLoading ? (
                       <LoadingIcons.TailSpin
                         stroke="white"
                         strokeWidth={5}
                         height="17px"
                       />
                     ) : (
-                      "Kaldır"
+                      "Ekle"
                     )}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </div>
+                </button>
+              </div>
+            </form>
+
+            <table className="w-full text-sm text-left text-gray-500">
+              <thead className="border-b">
+                <tr className="bg-white border-b">
+                  <th scope="col" className="py-3 px-6">
+                    Id
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Name
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Url
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Price
+                  </th>
+                  <th scope="col" className="py-3 px-6"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {trackingShoes.map((shoe) => (
+                  <tr className="border-b" key={shoe.id}>
+                    <td className="py-4 px-6">{shoe.id}</td>
+                    <td className="py-4 px-6">{shoe.name}</td>
+                    <td className="py-4 px-6">{shoe.url}</td>
+                    <td className="py-4 px-6">{shoe.price}</td>
+                    <td className="py-4 px-6 flex justify-end">
+                      <button
+                        onClick={() => {
+                          handleDelete(shoe.id);
+                        }}
+                        className="mt-5 bg-rose-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                      >
+                        {deleteBtnsLoading[shoe.id] ? (
+                          <LoadingIcons.TailSpin
+                            stroke="white"
+                            strokeWidth={5}
+                            height="17px"
+                          />
+                        ) : (
+                          "Kaldır"
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
 
         <h1 className="text-center text-lg my-3">
           {user ? (
