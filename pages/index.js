@@ -5,10 +5,11 @@ import Link from "next/link";
 
 export default function Home() {
   const user = useUser();
-  const [isBtnLoading, setIsBtnLoading] = useState(false);
+  const [isAddBtnLoading, setIsAddBtnLoading] = useState(false);
+  const [deleteBtnsLoading, setDeleteBtnsLoading] = useState({});
   const [url, setUrl] = useState("");
   const [error, setError] = useState(null);
-  const [trackingShoes, setTrackingShoes] = useState({});
+  const [trackingShoes, setTrackingShoes] = useState([]);
 
   const supabase = useSupabaseClient();
 
@@ -19,21 +20,44 @@ export default function Home() {
   }, [user]);
 
   const fetchUserData = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("link_user_to_shoe")
-      .select("shoes(url,price,name)")
+      .select("id,shoes(url,price,name)")
       .match({ email: user.email });
+
+    let obj = data.map((e) => {
+      let id = e.id;
+      setDeleteBtnsLoading((prevState) => ({ ...prevState, [id]: false }));
+      return Object.assign(e.shoes, { id });
+    });
+    setTrackingShoes(obj);
+  };
+
+  const handleDelete = async (id) => {
+    setDeleteBtnsLoading((prevState) => ({ ...prevState, [id]: true }));
+    const { error: deleteError } = await supabase
+      .from("link_user_to_shoe")
+      .delete()
+      .eq("id", id);
+    {
+      deleteError && setError("Bir Hata Meydana Geldi");
+    }
+
+    fetchUserData();
+    setDeleteBtnsLoading((prevState) => ({ ...prevState, [id]: false }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsBtnLoading(true);
+    setIsAddBtnLoading(true);
     var price;
     var name;
+    const shoeUrl = url.replace(" ", "");
+    console.log(shoeUrl);
 
     await fetch("/api/getShoe", {
       method: "POST",
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url: shoeUrl }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -47,12 +71,13 @@ export default function Home() {
 
     const { error: shoeError } = await supabase
       .from("shoes")
-      .insert({ url, price, name })
+      .insert({ url: shoeUrl, price, name })
       .select();
 
     if (shoeError && shoeError.code !== "23505") {
       setError("Bir hata meydana geldi");
-      setIsBtnLoading(false);
+      setIsAddBtnLoading(false);
+      setUrl("");
       return;
     }
 
@@ -62,14 +87,17 @@ export default function Home() {
       .match({ email: user.email, shoe: url });
     if (check.length) {
       setError("Bu ürünü zaten takip ediyorsunuz");
-      setIsBtnLoading(false);
+      setIsAddBtnLoading(false);
+      setUrl("");
       return;
     }
 
     const { error: linkError } = await supabase
       .from("link_user_to_shoe")
       .insert({ email: user.email, shoe: url });
-    setIsBtnLoading(false);
+    fetchUserData();
+    setUrl("");
+    setIsAddBtnLoading(false);
   };
 
   return (
@@ -88,6 +116,7 @@ export default function Home() {
             name="url"
             className="bg-black-50 border border-black-300 text-black-900 text-sm rounded-lg focus:ring-black-500 focus:border-black-500 block w-full p-2.5"
             required
+            value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
           <div className="w-100 flex justify-end py-4 px-6">
@@ -97,7 +126,7 @@ export default function Home() {
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
               <div role="status">
-                {isBtnLoading ? (
+                {isAddBtnLoading ? (
                   <LoadingIcons.TailSpin
                     stroke="white"
                     strokeWidth={5}
@@ -111,9 +140,9 @@ export default function Home() {
           </div>
         </form>
 
-        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <table className="w-full text-sm text-left text-gray-500">
           <thead className="border-b">
-            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <tr className="bg-white border-b">
               <th scope="col" className="py-3 px-6">
                 Id
               </th>
@@ -123,36 +152,47 @@ export default function Home() {
               <th scope="col" className="py-3 px-6">
                 Url
               </th>
+              <th scope="col" className="py-3 px-6">
+                Price
+              </th>
               <th scope="col" className="py-3 px-6"></th>
             </tr>
           </thead>
           <tbody>
-            {}
-            <tr className="border-b">
-              <th>1</th>
-              <th>Nike Precision 5</th>
-              <td className="py-4 px-6">
-                https://www.nike.com/tr/t/precision-5-basketbol-ayakkab%C4%B1s%C4%B1-L3gD0s/CW3403-003
-              </td>
-              <td className="py-4 px-6 flex justify-end">
-                <form action="/shoes/unwatch" method="POST">
+            {trackingShoes.map((shoe) => (
+              <tr className="border-b" key={shoe.id}>
+                <td className="py-4 px-6">{shoe.id}</td>
+                <td className="py-4 px-6">{shoe.name}</td>
+                <td className="py-4 px-6">{shoe.url}</td>
+                <td className="py-4 px-6">{shoe.price}</td>
+                <td className="py-4 px-6 flex justify-end">
                   <button
-                    type="submit"
+                    onClick={() => {
+                      handleDelete(shoe.id);
+                    }}
                     className="mt-5 bg-rose-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   >
-                    Kaldır
+                    {deleteBtnsLoading[shoe.id] ? (
+                      <LoadingIcons.TailSpin
+                        stroke="white"
+                        strokeWidth={5}
+                        height="17px"
+                      />
+                    ) : (
+                      "Kaldır"
+                    )}
                   </button>
-                </form>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
         <h1 className="text-center text-lg my-3">
           {user ? (
             <>
-              Fiyatı değiştiğinde bildirim almak istediğiniz ürünün url'sini
-              ekleyiniz.
+              {!trackingShoes.length &&
+                "Fiyatı değiştiğinde bildirim almak istediğiniz ürünün url'sini ekleyiniz."}
             </>
           ) : (
             <>
