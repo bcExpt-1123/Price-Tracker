@@ -13,6 +13,20 @@ export default function Home() {
   const supabase = useSupabaseClient();
   const router = useRouter();
 
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, []);
+
+  const fetchUserData = async () => {
+    const { data, error } = await supabase
+      .from("link_user_to_shoe")
+      .select("shoes(url,price,name)")
+      .match({ email: user.email });
+    console.log(data);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsBtnLoading(true);
@@ -98,6 +112,24 @@ export default function Home() {
             </button>
           </div>
         </form>
+
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead class="border-b">
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <th scope="col" class="py-3 px-6">
+                Id
+              </th>
+              <th scope="col" class="py-3 px-6">
+                Name
+              </th>
+              <th scope="col" class="py-3 px-6">
+                Url
+              </th>
+              <th scope="col" class="py-3 px-6"></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
 
         <h1 className="text-center text-lg my-3">
           {user ? (
