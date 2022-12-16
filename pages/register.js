@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import LoadingIcons from "react-loading-icons";
 import { useRouter } from "next/router";
@@ -94,7 +94,7 @@ export default function register() {
           >
             {isBtnLoading ? (
               <LoadingIcons.TailSpin
-                stroke="#06bcee"
+                stroke="white"
                 strokeWidth={5}
                 height="17px"
               />

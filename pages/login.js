@@ -73,7 +73,7 @@ export default function Login() {
           >
             {isBtnLoading ? (
               <LoadingIcons.TailSpin
-                stroke="#06bcee"
+                stroke="white"
                 strokeWidth={5}
                 height="17px"
               />
