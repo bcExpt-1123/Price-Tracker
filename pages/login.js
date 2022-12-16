@@ -1,14 +1,13 @@
-import React from "react";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import React, { useState } from "react";
 import LoadingIcons from "react-loading-icons";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 
-export default function register() {
+export default function Login() {
   const [formData, setformData] = useState({});
-  const [error, setError] = useState(null);
   const [isBtnLoading, setIsBtnLoading] = useState(false);
+  const [error, setError] = useState(null);
   const supabase = useSupabaseClient();
-
   const router = useRouter();
 
   const updateData = (e) => {
@@ -20,37 +19,29 @@ export default function register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsBtnLoading(true);
     var [email, password] = [formData.email, formData.password];
-    if (password !== formData.confirmPassword) {
-      setError("Parolalar eşleşmiyor");
-      setIsBtnLoading(false);
-      return;
-    }
 
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
     if (error) {
-      setError("Böyle bir kullanıcı mevcut");
+      setError("Email veya parola hatalı");
       setIsBtnLoading(false);
       return;
     }
 
     router.replace("/");
   };
-
   return (
     <div className="container mx-auto pt-5">
-      <div className="text-center text-2xl">Kaydol</div>
+      <div className="text-center text-2xl mb-5">Giriş Yap</div>
       {error && (
         <div className="border border-red-400 rounded-b bg-red-100 px-4 py-2 my-3 text-red-700">
           <p>{error}</p>
         </div>
       )}
-
       <form onSubmit={handleSubmit}>
         <p>
           <label htmlFor="id_email">Email:</label>{" "}
@@ -75,18 +66,6 @@ export default function register() {
             onChange={updateData}
           />
         </p>
-        <p>
-          <label htmlFor="id_confirmPassword">Parolayı Doğrula:</label>{" "}
-          <input
-            type="password"
-            name="confirmPassword"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
-            required
-            minLength={6}
-            id="id_confirmPassword"
-            onChange={updateData}
-          />
-        </p>
         <div className="w-100 flex justify-end">
           <button
             type="submit"
@@ -99,7 +78,7 @@ export default function register() {
                 height="17px"
               />
             ) : (
-              "Kaydol"
+              "Giriş Yap"
             )}
           </button>
         </div>
