@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import LoadingIcons from "react-loading-icons";
-import { useRouter } from "next/router";
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
 import Link from "next/link";
 
@@ -9,22 +8,21 @@ export default function Home() {
   const [isBtnLoading, setIsBtnLoading] = useState(false);
   const [url, setUrl] = useState("");
   const [error, setError] = useState(null);
+  const [trackingShoes, setTrackingShoes] = useState({});
 
   const supabase = useSupabaseClient();
-  const router = useRouter();
 
   useEffect(() => {
     if (user) {
       fetchUserData();
     }
-  }, []);
+  }, [user]);
 
   const fetchUserData = async () => {
     const { data, error } = await supabase
       .from("link_user_to_shoe")
       .select("shoes(url,price,name)")
       .match({ email: user.email });
-    console.log(data);
   };
 
   const handleSubmit = async (e) => {
@@ -113,22 +111,41 @@ export default function Home() {
           </div>
         </form>
 
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead class="border-b">
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <th scope="col" class="py-3 px-6">
+        <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead className="border-b">
+            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <th scope="col" className="py-3 px-6">
                 Id
               </th>
-              <th scope="col" class="py-3 px-6">
+              <th scope="col" className="py-3 px-6">
                 Name
               </th>
-              <th scope="col" class="py-3 px-6">
+              <th scope="col" className="py-3 px-6">
                 Url
               </th>
-              <th scope="col" class="py-3 px-6"></th>
+              <th scope="col" className="py-3 px-6"></th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            {}
+            <tr className="border-b">
+              <th>1</th>
+              <th>Nike Precision 5</th>
+              <td className="py-4 px-6">
+                https://www.nike.com/tr/t/precision-5-basketbol-ayakkab%C4%B1s%C4%B1-L3gD0s/CW3403-003
+              </td>
+              <td className="py-4 px-6 flex justify-end">
+                <form action="/shoes/unwatch" method="POST">
+                  <button
+                    type="submit"
+                    className="mt-5 bg-rose-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Kaldır
+                  </button>
+                </form>
+              </td>
+            </tr>
+          </tbody>
         </table>
 
         <h1 className="text-center text-lg my-3">
