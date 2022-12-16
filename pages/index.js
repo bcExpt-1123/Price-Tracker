@@ -15,6 +15,9 @@ export default function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsBtnLoading(true);
+    var price;
+    var name;
 
     await fetch("/api/getShoe", {
       method: "POST",
@@ -23,25 +26,49 @@ export default function Home() {
         "Content-Type": "application/json",
       },
     })
-      .then((response) => response.json())
+      .then((resp) => resp.json())
       .then(async (data) => {
-        var price = data.price;
-        var name = data.title;
-
-        const { error } = await supabase
-          .from("shoes")
-          .insert({ url, price, name });
-        console.log(error);
-        {
-          error && setError("Bir hata meydana geldi");
-        }
+        price = data.price.replace("₺", "").replace(".", "").replace(",", ".");
+        price = parseFloat(price);
+        name = data.title;
       });
+
+    const { error: shoeError } = await supabase
+      .from("shoes")
+      .insert({ url, price, name })
+      .select();
+
+    if (shoeError && shoeError.code !== "23505") {
+      setError("Bir hata meydana geldi");
+      setIsBtnLoading(false);
+      return;
+    }
+
+    const { data: check } = await supabase
+      .from("link_user_to_shoe")
+      .select("id")
+      .match({ email: user.email, shoe: url });
+    if (check.length) {
+      setError("Bu ürünü zaten takip ediyorsunuz");
+      setIsBtnLoading(false);
+      return;
+    }
+
+    const { error: linkError } = await supabase
+      .from("link_user_to_shoe")
+      .insert({ email: user.email, shoe: url });
+    setIsBtnLoading(false);
   };
 
   return (
     <>
       <div className="container mx-auto pt-5">
         <h1 className="text-center text-lg font-bold">{user?.email}</h1>
+        {error && (
+          <div className="border border-red-400 rounded-b bg-red-100 px-4 py-2 my-3 text-red-700">
+            <p>{error}</p>
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <label htmlFor="url">Url</label>
           <input
