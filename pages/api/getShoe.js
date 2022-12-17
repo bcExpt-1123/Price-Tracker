@@ -19,7 +19,6 @@ export default function handler(req, res) {
         return res.status(404).json({ error: "This url is not on the list" });
       })
       .catch(function (error) {
-        console.log(error);
         return res.json({ error });
       });
   } else {

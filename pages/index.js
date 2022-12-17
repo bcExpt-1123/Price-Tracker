@@ -100,9 +100,10 @@ export default function Home() {
       return;
     }
 
-    const { error: linkError } = await supabase
+    await supabase
       .from("link_user_to_shoe")
-      .insert({ email: user.email, shoe: url });
+      .insert({ email: user.email, shoe: shoeUrl });
+
     fetchUserData();
     setUrl("");
     setIsAddBtnLoading(false);
