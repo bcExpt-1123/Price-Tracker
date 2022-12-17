@@ -15,7 +15,7 @@ function MyApp({ Component, pageProps }) {
     >
       <Layout>
         <Head>
-          <title>Arkuçi - Ev arkadaşı Bul</title>
+          <title>Arkuçi - Ürün Takip Sistemi</title>
         </Head>
         <Component {...pageProps} />
       </Layout>
