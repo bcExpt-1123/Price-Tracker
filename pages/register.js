@@ -43,7 +43,7 @@ export default function register() {
   };
 
   return (
-    <div className="container mx-auto pt-5">
+    <div className="container mx-auto p-5">
       <div className="text-center text-2xl">Kaydol</div>
       {error && (
         <div className="p-4 m-4 bg-white rounded-lg ">
@@ -57,7 +57,7 @@ export default function register() {
           <input
             type="email"
             name="email"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
             required
             id="id_email"
             onChange={updateData}
@@ -68,7 +68,7 @@ export default function register() {
           <input
             type="password"
             name="password"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+            className="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
             required
             minLength={6}
             id="id_password"

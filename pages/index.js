@@ -120,17 +120,17 @@ export default function Home() {
         )}
         {user && (
           <>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="p-2">
               <label htmlFor="url">Url</label>
               <input
                 type="url"
                 name="url"
-                className="bg-black-50 border border-black-300 text-black-900 text-sm rounded-lg focus:ring-black-500 focus:border-black-500 block w-full p-2.5"
+                className=" border border-black-300 text-black-900 text-sm rounded-lg focus:ring-black-500 focus:border-black-500 block w-full p-2.5"
                 required
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
-              <div className="w-100 flex justify-end py-4 px-6">
+              <div className="w-100 flex justify-end py-4 ">
                 <button
                   id="add"
                   type="submit"
@@ -150,9 +150,8 @@ export default function Home() {
                 </button>
               </div>
             </form>
-
             <table className="w-full text-sm text-left text-gray-500">
-              <thead className="border-b">
+              <thead className="border-b hidden md:contents">
                 <tr className="bg-white border-b">
                   <th scope="col" className="py-3 px-6">
                     Id
@@ -166,22 +165,36 @@ export default function Home() {
                   <th scope="col" className="py-3 px-6">
                     Price
                   </th>
-                  <th scope="col" className="py-3 px-6"></th>
+                  <th scope="col" className="py-3 px-6 "></th>
                 </tr>
               </thead>
               <tbody>
                 {trackingShoes.map((shoe) => (
-                  <tr className="border-b" key={shoe.id}>
-                    <td className="py-4 px-6">{shoe.id}</td>
-                    <td className="py-4 px-6">{shoe.name}</td>
-                    <td className="py-4 px-6">{shoe.url}</td>
-                    <td className="py-4 px-6">{shoe.price}</td>
-                    <td className="py-4 px-6 flex justify-end">
+                  <tr
+                    className="border-b flex flex-col bg-white shadow rounded mb-5 md:bg-transparent md:shadow-none	 md:mb-0 md:table-row						"
+                    key={shoe.id}
+                  >
+                    <td className="py-4 px-6 border-b flex flex-row justify-between w-100 md:table-cell">
+                      <span className="md:hidden font-bold">Id </span> {shoe.id}
+                    </td>
+                    <td className="py-4 px-6 border-b flex flex-row justify-between w-100 md:table-cell">
+                      <span className="md:hidden font-bold">Name </span>
+                      {shoe.name}
+                    </td>
+                    <td className="py-4 px-6 border-b flex flex-row justify-between w-100 md:table-cell">
+                      <span className="md:hidden font-bold">Url </span>
+                      <span className="max-w-[200px] text-end">{shoe.url}</span>
+                    </td>
+                    <td className="py-4 px-6 border-b flex flex-row justify-between w-100 md:table-cell">
+                      <span className="md:hidden font-bold">Price </span>
+                      {shoe.price}
+                    </td>
+                    <td className="py-4 px-2 text-end">
                       <button
                         onClick={() => {
                           handleDelete(shoe.id);
                         }}
-                        className="mt-5 bg-rose-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        className="bg-rose-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                       >
                         {deleteBtnsLoading[shoe.id] ? (
                           <LoadingIcons.TailSpin
