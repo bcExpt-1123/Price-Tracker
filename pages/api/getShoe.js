@@ -8,9 +8,7 @@ export default function handler(req, res) {
       .then(function (response) {
         const html = response.data;
         const $ = cheerio.load(html);
-        const price = $(
-          ".product-price.css-11s12ax.is--current-price.css-tpaepq"
-        ).text();
+        const price = $(".product-price.is--current-price").text();
         const title = $("#pdp_product_title.headline-2.css-16cqcdq").text();
 
         if (price && title) {
