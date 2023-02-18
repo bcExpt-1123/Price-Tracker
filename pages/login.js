@@ -75,7 +75,7 @@ export default function Login() {
               <LoadingIcons.TailSpin
                 stroke="white"
                 strokeWidth={5}
-                height="17px"
+                height="16px"
               />
             ) : (
               "Giriş Yap"
